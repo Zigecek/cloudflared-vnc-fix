@@ -10,7 +10,7 @@ I uploaded this to Chrome Extension Store so anyone can use it. [Link](https://c
 
 ### v0.0.3
 
-Automatic detection of browser VNC session. Chrome.storage is no more needed. Removed the popup needed for setting the URL.
+Automatic detection of browser VNC session. Chrome.storage is no more needed. Removed the popup needed for setting the URL. Error handling.
 
 ### v0.0.2
 
