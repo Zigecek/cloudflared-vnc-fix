@@ -1,37 +1,41 @@
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  console.log(tab);
-  chrome.storage.local.get('url', function (items) {
-    if (!items.url) return;
-    if (tab.url.includes(items.url)) {
-      console.log('VNC tab detected');
-      chrome.scripting.executeScript({
-        target: { tabId: tabId, allFrames: true },
-        world: 'MAIN',
-        injectImmediately: true,
-        function: () => {
-          function clearIntervals() {
-            console.log('Clearing all previous intervals');
-            const interval_id = window.setInterval(function () {},
-            Number.MAX_SAFE_INTEGER);
-            for (let i = 1; i < interval_id; i++) {
-              window.clearInterval(i);
-            }
-          }
-          clearIntervals();
-
-          setTimeout(() => {
-            setInterval(() => {
-              let canvas = document.querySelector(
-                '#vnc_connected > div > div > canvas'
-              );
-              if (!canvas) return;
-              console.log('VNC canvas renderer cursor fixed');
-              canvas.style.cursor = 'default';
-              clearIntervals();
-            }, 100);
-          }, 1000);
+  if (changeInfo?.status !== "complete") return;
+  if (tab.url.startsWith("chrome://")) return;
+  chrome.scripting.executeScript({
+    target: { tabId: tabId, allFrames: true },
+    world: "MAIN",
+    function: () => {
+      console.log("VNC fix: starting job (finding canvas)");
+      function clearIntervals() {
+        console.log("VNC fix: stopping job");
+        const interval_id = window.setInterval(function () {}, Number.MAX_SAFE_INTEGER);
+        for (let i = 1; i < interval_id; i++) {
+          window.clearInterval(i);
         }
-      });
-    }
+      }
+      clearIntervals();
+
+      let rootEl;
+      let errorPage;
+      let vncDisconnected;
+      let vncConnected;
+      let canvas;
+      setInterval(() => {
+        rootEl = document.querySelector("body > #root");
+        errorPage = document.querySelector("#root > #error_page");
+        vncDisconnected = document.querySelector("#root > #vnc_disconnected");
+        vncConnected = document.querySelector("#root > #vnc_connected");
+        canvas = document.querySelector("#vnc_connected > div > div > canvas");
+
+        if (!rootEl || errorPage || (!vncDisconnected && !vncConnected)) {
+          console.log("VNC fix: not a VNC page or error occurred");
+          return clearIntervals();
+        }
+        if (!canvas) return console.log("VNC fix: waiting for canvas render");
+        console.log("VNC fix: canvas found, fixing cursor");
+        canvas.style.cursor = "default";
+        clearIntervals();
+      }, 100);
+    },
   });
 });

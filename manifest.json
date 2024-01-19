@@ -1,15 +1,12 @@
 {
   "name": "Cloudflared VNC Cursor fix",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Fixes the cursor in Cloudflared VNC sessions",
   "background": {
     "service_worker": "service-worker.js"
   },
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": "Cloudflare_Logo_Patch.png"
-  },
-  "permissions": ["tabs", "scripting", "storage"],
+  "action": {},
+  "permissions": ["tabs", "scripting"],
   "host_permissions": ["https://*/*"],
   "manifest_version": 3
 }
